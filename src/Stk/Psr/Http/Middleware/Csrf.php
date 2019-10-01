@@ -53,7 +53,10 @@ class Csrf implements MiddlewareInterface
             return $response;
         }
 
-        $request = $this->handle($request);
+        $myResponse = $this->handle($request);
+        if ($myResponse !== null) {
+            $response = $response->withStatus($myResponse->getStatusCode());
+        }
 
         return $next($request, $response);
     }
