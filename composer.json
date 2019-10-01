@@ -1,0 +1,44 @@
+{
+  "name": "mbretter/stk-csrf",
+  "description": "Stk CSRF service and middleware",
+  "keywords": [
+    "stk",
+    "csrf"
+  ],
+  "homepage": "https://www.bretterklieber.com",
+  "type": "library",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Michael Bretterklieber",
+      "email": "github@bretterklieber.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "mbretter/stk-di": "^1",
+    "psr/http-message": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "tuupola/http-factory": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Stk\\": "src/Stk"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8",
+    "friendsofphp/php-cs-fixer": "^2.14"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "StkTest\\": "test/unit/Stk"
+    }
+  },
+  "scripts": {
+    "test-unit": "phpunit -v --testsuite=\"unit tests\" --testdox --bootstrap test/unit/bootstrap.php",
+    "test-reports": "phpunit --testsuite=\"unit tests\" --bootstrap test/unit/bootstrap.php --coverage-html reports/coverage --coverage-clover reports/clover.xml --coverage-crap4j reports/crap4j.xml --log-junit reports/junit.xml",
+    "cs-check": "php-cs-fixer fix -v --dry-run --using-cache=no src",
+    "cs-fix": "php-cs-fixer fix -v --using-cache=no src"
+  }
+}
