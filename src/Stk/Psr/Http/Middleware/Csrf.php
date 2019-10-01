@@ -2,6 +2,7 @@
 
 namespace Stk\Psr\Http\Middleware;
 
+use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -46,6 +47,7 @@ class Csrf implements MiddlewareInterface
      * @param callable $next
      *
      * @return ResponseInterface
+     * @throws Exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
     {
@@ -74,7 +76,13 @@ class Csrf implements MiddlewareInterface
         return $response;
     }
 
-    protected function handle(ServerRequestInterface $request): ResponseInterface
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return ResponseInterface|null
+     * @throws Exception
+     */
+    protected function handle(ServerRequestInterface $request)
     {
         // check for a csrf token or create one if none
         if ($this->service->hasToken() === false) {
