@@ -21,6 +21,9 @@ class Csrf implements MiddlewareInterface
     /** @var int lifetime of csrf token cookie */
     protected $cookieLifetime = 86400 * 3650; // approx 1 year
 
+    /** @var int http status code if validation failed */
+    protected $statusCode = 403;
+
     /** @var CsrfInterface */
     protected $service;
 
@@ -38,6 +41,10 @@ class Csrf implements MiddlewareInterface
 
         if (isset($config['cookieLifetime'])) {
             $this->cookieLifetime = (int)$config['cookie-lifetime'];
+        }
+
+        if (isset($config['status-code'])) {
+            $this->statusCode = (int)$config['status-code'];
         }
     }
 
@@ -86,21 +93,27 @@ class Csrf implements MiddlewareInterface
     {
         // check for a csrf token or create one if none
         if ($this->service->hasToken() === false) {
-            // create a single session token which never expires
-            $token = $this->service->newToken(0, true);
-
-            // set cookie, will be read by clients and send back as header
-            $this->setCookie($token);
+            $this->sendNewToken();
         } else {
             // validate token
             $csrfToken = $request->getHeaderLine($this->headername);
 
             if ($this->service->validateToken($csrfToken) === false) {
-                return (new ResponseFactory)->createResponse(403);
+                $this->sendNewToken();
+                return (new ResponseFactory)->createResponse($this->statusCode);
             }
         }
 
         return null;
+    }
+
+    protected function sendNewToken()
+    {
+        // create a single session token which never expires
+        $token = $this->service->newToken(0, true);
+
+        // set cookie, will be read by clients and send back as header
+        $this->setCookie($token);
     }
 
     protected function setCookie($token)
