@@ -39,7 +39,7 @@ class Csrf implements MiddlewareInterface
             $this->headername = $config['headername'];
         }
 
-        if (isset($config['cookieLifetime'])) {
+        if (isset($config['cookie-lifetime'])) {
             $this->cookieLifetime = (int)$config['cookie-lifetime'];
         }
 
