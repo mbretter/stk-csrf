@@ -21,6 +21,9 @@ class Csrf implements MiddlewareInterface
     /** @var int lifetime of csrf token cookie */
     protected $cookieLifetime = 86400 * 3650; // approx 1 year
 
+    /** @var bool set secure (https) option to cookie */
+    protected $cookieSecure = true;
+
     /** @var int http status code if validation failed */
     protected $statusCode = 403;
 
@@ -35,12 +38,16 @@ class Csrf implements MiddlewareInterface
             $this->cookiename = $config['cookiename'];
         }
 
-        if (isset($config['headername'])) {
-            $this->headername = $config['headername'];
-        }
-
         if (isset($config['cookie-lifetime'])) {
             $this->cookieLifetime = (int)$config['cookie-lifetime'];
+        }
+
+        if (isset($config['cookie-secure'])) {
+            $this->cookieSecure = (bool)$config['cookie-secure'];
+        }
+
+        if (isset($config['headername'])) {
+            $this->headername = $config['headername'];
         }
 
         if (isset($config['status-code'])) {
@@ -120,6 +127,6 @@ class Csrf implements MiddlewareInterface
     {
         // csrf token cookie must not be http-only
         // csrf token cookie ist sent via http and https to cover dev and prod env
-        setcookie($this->cookiename, $token, time() + $this->cookieLifetime, '/', "", true, false);
+        setcookie($this->cookiename, $token, time() + $this->cookieLifetime, '/', "", $this->cookieSecure, false);
     }
 }
