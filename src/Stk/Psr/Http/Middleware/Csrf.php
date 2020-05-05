@@ -75,12 +75,12 @@ class Csrf implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $response = $handler->handle($request);
+        $response = $this->handle($request);
         if ($response !== null) {
             return $response;
         }
 
-        return $response;
+        return $handler->handle($request);
     }
 
     /**
