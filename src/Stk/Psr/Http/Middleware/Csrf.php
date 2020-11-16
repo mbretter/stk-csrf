@@ -19,7 +19,7 @@ class Csrf implements MiddlewareInterface
     protected $headername = 'X-XSRF-TOKEN';
 
     /** @var int lifetime of csrf token cookie */
-    protected $cookieLifetime = 86400 * 3650; // approx 1 year
+    protected $cookieLifetime = 86400 * 365; // approx 1 year
 
     /** @var bool set secure (https) option to cookie */
     protected $cookieSecure = true;
