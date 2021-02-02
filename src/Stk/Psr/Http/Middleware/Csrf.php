@@ -12,25 +12,31 @@ use Tuupola\Http\Factory\ResponseFactory;
 
 class Csrf implements MiddlewareInterface
 {
+    const COOKIE_LIFETIME = 86400 * 365; // approx 1 year
+    const STATUS_CODE     = 403;
+
     /** @var string the cookie which carries the csrf token */
-    protected $cookiename = 'XSRF-TOKEN';
+    protected string $cookiename = 'XSRF-TOKEN';
 
     /** @var string the header which must be sent back by the clients for validation */
-    protected $headername = 'X-XSRF-TOKEN';
+    protected string $headername = 'X-XSRF-TOKEN';
 
     /** @var int lifetime of csrf token cookie */
-    protected $cookieLifetime = 86400 * 365; // approx 1 year
+    protected int $cookieLifetime = self::COOKIE_LIFETIME;
 
     /** @var bool set secure (https) option to cookie */
-    protected $cookieSecure = true;
+    protected bool $cookieSecure = true;
 
     /** @var int http status code if validation failed */
-    protected $statusCode = 403;
+    protected int $statusCode = self::STATUS_CODE;
+
+    /** @var array|string[] excluded http methods */
+    protected array $excluded = ['GET', 'HEAD', 'OPTIONS'];
 
     /** @var CsrfInterface */
-    protected $service;
+    protected CsrfInterface $service;
 
-    public function __construct(CsrfInterface $csrfService, $config = [])
+    public function __construct(CsrfInterface $csrfService, array $config = [])
     {
         $this->service = $csrfService;
 
@@ -39,11 +45,11 @@ class Csrf implements MiddlewareInterface
         }
 
         if (isset($config['cookie-lifetime'])) {
-            $this->cookieLifetime = (int)$config['cookie-lifetime'];
+            $this->cookieLifetime = (int) $config['cookie-lifetime'];
         }
 
         if (isset($config['cookie-secure'])) {
-            $this->cookieSecure = (bool)$config['cookie-secure'];
+            $this->cookieSecure = (bool) $config['cookie-secure'];
         }
 
         if (isset($config['headername'])) {
@@ -51,7 +57,11 @@ class Csrf implements MiddlewareInterface
         }
 
         if (isset($config['status-code'])) {
-            $this->statusCode = (int)$config['status-code'];
+            $this->statusCode = (int) $config['status-code'];
+        }
+
+        if (isset($config['excluded']) && is_array($config['excluded'])) {
+            $this->excluded = array_map(fn($m) => strtoupper($m), $config['excluded']);
         }
     }
 
@@ -63,9 +73,12 @@ class Csrf implements MiddlewareInterface
      * @return ResponseInterface
      * @throws Exception
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
-    {
-        if (!$next) {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        callable $next
+    ): ResponseInterface {
+        if ($next == null) {
             return $response;
         }
 
@@ -96,10 +109,11 @@ class Csrf implements MiddlewareInterface
      * @return ResponseInterface|null
      * @throws Exception
      */
-    protected function handle(ServerRequestInterface $request)
+    protected function handle(ServerRequestInterface $request): ?ResponseInterface
     {
         // check for a csrf token or create one if none
-        if ($this->service->hasToken() === false) {
+        // exclude certain methods
+        if ($this->service->hasToken() === false || in_array(strtoupper($request->getMethod()), $this->excluded)) {
             $this->sendNewToken();
         } else {
             // validate token
@@ -107,6 +121,7 @@ class Csrf implements MiddlewareInterface
 
             if ($this->service->validateToken($csrfToken) === false) {
                 $this->sendNewToken();
+
                 return (new ResponseFactory)->createResponse($this->statusCode);
             }
         }
@@ -114,7 +129,7 @@ class Csrf implements MiddlewareInterface
         return null;
     }
 
-    protected function sendNewToken()
+    protected function sendNewToken(): void
     {
         // create a single session token which never expires
         $token = $this->service->newToken(0, true);
@@ -123,7 +138,7 @@ class Csrf implements MiddlewareInterface
         $this->setCookie($token);
     }
 
-    protected function setCookie($token)
+    protected function setCookie(string $token): void
     {
         // csrf token cookie must not be http-only
         // csrf token cookie ist sent via http and https to cover dev and prod env

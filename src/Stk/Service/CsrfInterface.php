@@ -9,14 +9,14 @@ interface CsrfInterface
 
     /**
      * generate and store a new token
-     * 
-     * @param null $lifetime null means unlimited lifetime
+     *
+     * @param int|null $lifetime null means unlimited lifetime
      * @param bool $single whether to keep a list of tokens or just one
      *
-     * @return mixed
+     * @return string
      * @throws Exception
      */
-    public function newToken($lifetime = null, $single = false): string;
+    public function newToken(int $lifetime = null, $single = false): string;
 
     /**
      * check whether tokens are available
@@ -26,11 +26,9 @@ interface CsrfInterface
     public function hasToken(): bool;
 
     /**
-     * @param $token
+     * @param string $token
      *
-     * @return mixed
+     * @return bool
      */
-    public function validateToken($token): bool;
-
+    public function validateToken(string $token): bool;
 }
-

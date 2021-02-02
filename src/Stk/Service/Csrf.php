@@ -9,7 +9,7 @@ use stdClass;
 
 class Csrf implements Injectable, CsrfInterface
 {
-    protected $storageKey = 'csrftokens';
+    protected string $storageKey = 'csrftokens';
 
     /** @var int token lifetime in seconds */
     protected $tokenlifetime = 1800;
@@ -21,9 +21,9 @@ class Csrf implements Injectable, CsrfInterface
     protected $namespace = 'session';
 
     /** @var ArrayAccess anything providing this interface */
-    protected $storage;
+    protected ArrayAccess $storage;
 
-    public function __construct(ArrayAccess $storage, $config = [])
+    public function __construct(ArrayAccess $storage, array $config = [])
     {
         $this->storage = $storage;
 
@@ -47,12 +47,12 @@ class Csrf implements Injectable, CsrfInterface
     /**
      * create a token with the giver lifetime in seconds
      *
-     * @param null $lifetime
+     * @param int|null $lifetime
      *
      * @return stdClass
      * @throws Exception
      */
-    protected function createToken($lifetime = null)
+    protected function createToken(int $lifetime = null): stdClass
     {
         $token           = new stdClass();
         $token->value    = $this->base64UrlEncode(random_bytes(32));
@@ -69,13 +69,13 @@ class Csrf implements Injectable, CsrfInterface
     /**
      * generate and store a new token
      *
-     * @param null $lifetime
+     * @param int|null $lifetime
      * @param bool $single
      *
      * @return string
      * @throws Exception
      */
-    public function newToken($lifetime = null, $single = false): string
+    public function newToken(int $lifetime = null, $single = false): string
     {
         $token = $this->createToken($lifetime);
 
@@ -84,7 +84,7 @@ class Csrf implements Injectable, CsrfInterface
         return $token->value;
     }
 
-    protected function storeToken($token, $single = false)
+    protected function storeToken(stdClass $token, bool $single = false): void
     {
         $tokens = $this->getTokens();
 
@@ -95,7 +95,7 @@ class Csrf implements Injectable, CsrfInterface
                 $tokens[$this->namespace] = [];
             }
 
-            if ($this->maxtokens > 0 && count($tokens[$this->namespace]) > $this->maxtokens) {
+            if ($this->maxtokens > 0 && count($tokens[$this->namespace]) >= $this->maxtokens) {
                 array_shift($tokens[$this->namespace]);
             }
 
@@ -103,8 +103,6 @@ class Csrf implements Injectable, CsrfInterface
         }
 
         $this->storage[$this->storageKey] = $tokens;
-
-        return $this;
     }
 
     /**
@@ -119,9 +117,9 @@ class Csrf implements Injectable, CsrfInterface
         return isset($tokens[$this->namespace]);
     }
 
-    public function validateToken($token): bool
+    public function validateToken(string $token): bool
     {
-        if (!is_string($token) || !strlen($token)) {
+        if (!strlen($token)) {
             return false;
         }
 
@@ -146,7 +144,7 @@ class Csrf implements Injectable, CsrfInterface
         return false;
     }
 
-    protected function verifyToken($token)
+    protected function verifyToken(stdClass $token): bool
     {
         if ($token->lifetime > 0) {
             $diff    = (new DateTime)->diff($token->datetime, true);
@@ -159,12 +157,12 @@ class Csrf implements Injectable, CsrfInterface
         return true;
     }
 
-    public function base64UrlEncode($data)
+    public function base64UrlEncode(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
-    protected function getTokens()
+    protected function getTokens(): array
     {
         if (!isset($this->storage[$this->storageKey])) {
             return [];
@@ -173,4 +171,3 @@ class Csrf implements Injectable, CsrfInterface
         return $this->storage[$this->storageKey];
     }
 }
-
