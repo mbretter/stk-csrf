@@ -1,4 +1,4 @@
-# csrf PSR middleware for php
+# CSRF for php
 
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![PHP 7.4](https://img.shields.io/badge/php-7.4-yellow.svg)](http://www.php.net)

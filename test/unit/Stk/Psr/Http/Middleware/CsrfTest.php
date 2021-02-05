@@ -90,12 +90,11 @@ class CsrfTest extends TestCase
 
     public function testProcessExcludedMethod()
     {
-        $this->request->method('getHeaderLine')->willReturn("sometoken");
+        $this->request->expects($this->never())->method('getHeaderLine');
         $this->request->method('getMethod')->willReturn("get");
         $this->service->method('hasToken')->willReturn(true);
-        $this->service->method('validateToken')->with("sometoken")->willReturn(false);
         $setcookieMock = $this->getFunctionMock('Stk\Psr\Http\Middleware', 'setcookie');
-        $setcookieMock->expects($this->once());
+        $setcookieMock->expects($this->never());
 
         $response = $this->middleware->process($this->request, $this->requestHandler);
         $this->assertSame($response, $this->response);
@@ -104,12 +103,12 @@ class CsrfTest extends TestCase
     public function testProcessExcludedMethodConfig()
     {
         $middleware = new Csrf($this->service, ['excluded' => ['get']]);
-        $this->request->method('getHeaderLine')->willReturn("sometoken");
+        $this->request->expects($this->never())->method('getHeaderLine');
         $this->request->method('getMethod')->willReturn("get");
         $this->service->method('hasToken')->willReturn(true);
-        $this->service->method('validateToken')->with("sometoken")->willReturn(false);
+        $this->service->expects($this->never())->method('validateToken');
         $setcookieMock = $this->getFunctionMock('Stk\Psr\Http\Middleware', 'setcookie');
-        $setcookieMock->expects($this->once());
+        $setcookieMock->expects($this->never());
 
         $response = $middleware->process($this->request, $this->requestHandler);
         $this->assertSame($response, $this->response);

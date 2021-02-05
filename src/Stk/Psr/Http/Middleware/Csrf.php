@@ -112,10 +112,13 @@ class Csrf implements MiddlewareInterface
     protected function handle(ServerRequestInterface $request): ?ResponseInterface
     {
         // check for a csrf token or create one if none
-        // exclude certain methods
-        if ($this->service->hasToken() === false || in_array(strtoupper($request->getMethod()), $this->excluded)) {
+        if ($this->service->hasToken() === false) {
             $this->sendNewToken();
         } else {
+            // exclude certain methods
+            if (in_array(strtoupper($request->getMethod()), $this->excluded)) {
+                return null;
+            }
             // validate token
             $csrfToken = $request->getHeaderLine($this->headername);
 
