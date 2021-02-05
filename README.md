@@ -7,4 +7,4 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/mbretter/stk-csrf.svg)](https://packagist.org/packages/mbretter/stk-csrf)
 [![Total Downloads](https://img.shields.io/packagist/dt/mbretter/stk-csrf.svg)](https://packagist.org/packages/mbretter/stk-csrf)
 
-CSRF Serive and PSR/Slim3 middleware
+CSRF Service and PSR/Slim3 middleware
