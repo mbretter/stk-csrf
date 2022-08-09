@@ -31,7 +31,7 @@
     "friendsofphp/php-cs-fixer": "^v2.18.2",
     "phpstan/phpstan": "^0.12.71",
     "php-mock/php-mock-phpunit": "^2.6",
-    "laminas/laminas-diactoros": "2.5.0"
+    "laminas/laminas-diactoros": "2.14.0"
   },
   "autoload-dev": {
     "psr-4": {
