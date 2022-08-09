@@ -16,7 +16,7 @@
   ],
   "require": {
     "php": "^7.4|^8.0",
-    "mbretter/stk-di": "^2",
+    "mbretter/stk-di": ">=2",
     "psr/http-message": "^1.0",
     "psr/http-server-middleware": "^1.0",
     "tuupola/http-factory": "^1.3.0"
